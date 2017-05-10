@@ -3,17 +3,22 @@ require File.expand_path("../lib/rack-webdav/version", __FILE__)
 Gem::Specification.new do |s|
   s.name = 'rack-webdav'
   s.version = RackWebDAV::VERSION
-  s.summary = 'WebDAV handler for Rack'
+
+  s.required_ruby_version = '>= 1.9.3'
+
   s.author = 'Koki Oyatsu'
   s.email = 'kaishuu0123@gmail.com'
+  s.summary = 'WebDAV handler for Rack'
+  s.description = 'WebDAV handler for Rack (dav4rack based)'
   s.homepage = 'http://github.com/kaishuu0123/rack-webdav'
-  s.description = 'WebDAV handler for Rack'
-  s.executables << 'rack-webdav'
+  s.licenses = ['MIT']
+
   s.has_rdoc = true
   s.extra_rdoc_files = ['README.rdoc']
 
+  s.executables = ['rack-webdav']
+  s.require_paths = ['lib']
   s.files = Dir.glob('{bin,lib}/**/*') + %w{rack-webdav.gemspec .gitignore README.rdoc LICENSE}
-  s.require_path = 'lib'
 
   s.add_dependency 'nokogiri', '>= 1.4.2'
   s.add_dependency 'uuidtools', '~> 2.1.1'
@@ -27,5 +32,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'awesome_print'
   s.add_development_dependency 'hirb'
   s.add_development_dependency 'hirb-unicode'
-
 end
