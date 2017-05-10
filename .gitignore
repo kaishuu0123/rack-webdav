@@ -5,3 +5,4 @@
 doc/*
 pkg/*
 test/repo
+/vendor/bundle
