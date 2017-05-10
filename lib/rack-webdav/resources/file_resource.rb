@@ -78,11 +78,16 @@ module RackWebDAV
         status, headers, body = file.call(request.env)
 
         if body.respond_to?(:to_path)
-          response.body = ::File.open(body.to_path, 'rb')
+          response.body = ::File.open(body.to_path, 'rb').read
+          response['Content-Length'] = response.body.bytesize.to_s
         else
-          response.body = body.each { |part|
-            response.body << part
+          response.body = ""
+          total_bytes = 0
+          body.each { |part|
+            response.body += part
+            total_bytes += part.bytesize
           }
+          response['Content-Length'] = total_bytes
         end
       end
       OK
