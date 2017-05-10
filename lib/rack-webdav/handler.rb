@@ -1,9 +1,9 @@
 require 'rack-webdav/logger'
 
 module RackWebDAV
-  
+
   class Handler
-    include RackWebDAV::HTTPStatus    
+    include RackWebDAV::HTTPStatus
     def initialize(options={})
       @options = options.dup
       unless(@options[:resource_class])
@@ -21,7 +21,7 @@ module RackWebDAV
         response = Rack::Response.new
 
         Logger.info "Processing WebDAV request: #{request.path} (for #{request.ip} at #{Time.now}) [#{request.request_method}]"
-        
+
         controller = nil
         begin
           controller_class = @options[:controller_class] || Controller
@@ -39,25 +39,25 @@ module RackWebDAV
 
         # Strings in Ruby 1.9 are no longer enumerable.  Rack still expects the response.body to be
         # enumerable, however.
-        
+
         response['Content-Length'] = response.body.to_s.length unless response['Content-Length'] || !response.body.is_a?(String)
         response.body = [response.body] unless response.body.respond_to? :each
         response.status = response.status ? response.status.to_i : 200
         response.headers.keys.each{|k| response.headers[k] = response[k].to_s}
-        
+
         # Apache wants the body dealt with, so just read it and junk it
         buf = true
         buf = request.body.read(8192) while buf
 
         Logger.debug "Response in string form. Outputting contents: \n#{response.body}" if response.body.is_a?(String)
         Logger.info "Completed in: #{((Time.now.to_f - start.to_f) * 1000).to_i} ms | #{response.status} [#{request.url}]"
-        response.finish
+        response
       rescue Exception => e
         Logger.error "WebDAV Error: #{e}\n#{e.backtrace.join("\n")}"
         raise e
       end
     end
-    
+
   end
 
 end
