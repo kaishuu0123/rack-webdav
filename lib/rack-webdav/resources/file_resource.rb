@@ -75,7 +75,15 @@ module RackWebDAV
         response['Content-Length'] = response.body.bytesize.to_s
       else
         file = Rack::File.new(root)
-        response.body = file
+        status, headers, body = file.call(request.env)
+
+        if body.respond_to?(:to_path)
+          response.body = ::File.open(body.to_path, 'rb')
+        else
+          response.body = body.each { |part|
+            response.body << part
+          }
+        end
       end
       OK
     end
@@ -259,8 +267,8 @@ module RackWebDAV
       if(token.nil? || token.empty?)
         BadRequest
       else
-        lock = FileResourceLock.find_by_token(token)
-        if(lock.nil? || lock.user_id != @user.id)
+        lock = FileResourceLock.find_by_token(token, root)
+        if lock.nil?
           Forbidden
         elsif(lock.path !~ /^#{Regexp.escape(@path)}.*$/)
           Conflict

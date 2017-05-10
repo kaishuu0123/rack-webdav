@@ -33,6 +33,9 @@ module RackWebDAV
       def explicit_locks(path, croot, args={})
       end
 
+      def implict_locks(path)
+      end
+
       def find_by_path(path, croot=nil)
         lock = self.class.new(:path => path, :root => croot)
         lock.token.nil? ? nil : lock
@@ -43,8 +46,15 @@ module RackWebDAV
         struct = store.transaction(true){
           store[:tokens][token]
         }
-        if(tok)
-          self.class.new(:path => struct[:path], :root => croot)
+        if !struct
+          struct = store.transaction(true) {
+            store[:tokens].keys.each { |k| token = k if k.include?(token) }
+            store[:tokens][token]
+          }
+        end
+
+        if struct
+          self.new(:path => struct[:path], :root => croot)
         else
           nil
         end
@@ -109,9 +119,9 @@ module RackWebDAV
 
     def save
       struct = {
-        :path => path, 
-        :token => token, 
-        :timeout => timeout, 
+        :path => path,
+        :token => token,
+        :timeout => timeout,
         :depth => depth,
         :created_at => Time.now,
         :owner => owner
