@@ -6,10 +6,10 @@ RackWebDAV based by (dav4rack)[https://github.com/chrisroberts/dav4rack]
 
 * dav4rack no maintained
 * I want to implment the following functions
-    * WebDAV RFC 3253 ( https://www.ietf.org/rfc/rfc3253.txt )
-        * because support Subversion (SVN) 
-    * Rails 5 support
-    * Rack 2.0 support
+  * WebDAV RFC 3253 ( https://www.ietf.org/rfc/rfc3253.txt )
+    * because support Subversion (SVN) 
+  * Rails 5 support
+  * Rack 2.0 support
 
 == Current Feature
 
