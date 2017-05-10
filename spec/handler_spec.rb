@@ -1,18 +1,18 @@
 $:.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 
 require 'rubygems'
-require 'dav4rack'
+require 'rack-webdav'
 require 'fileutils'
 require 'nokogiri'
 require 'rspec'
 
-describe DAV4Rack::Handler do
+describe RackWebDAV::Handler do
   DOC_ROOT = File.expand_path(File.dirname(__FILE__) + '/htdocs')
   METHODS = %w(GET PUT POST DELETE PROPFIND PROPPATCH MKCOL COPY MOVE OPTIONS HEAD LOCK UNLOCK)  
   
   before do
     FileUtils.mkdir(DOC_ROOT) unless File.exists?(DOC_ROOT)
-    @controller = DAV4Rack::Handler.new(:root => DOC_ROOT)
+    @controller = RackWebDAV::Handler.new(:root => DOC_ROOT)
   end
 
   after do
@@ -289,7 +289,7 @@ describe DAV4Rack::Handler do
   context "when mapping a path" do
     
     before do
-      @controller = DAV4Rack::Handler.new(:root => DOC_ROOT, :root_uri_path => '/webdav/')
+      @controller = RackWebDAV::Handler.new(:root => DOC_ROOT, :root_uri_path => '/webdav/')
     end
     
     it "should return correct urls" do

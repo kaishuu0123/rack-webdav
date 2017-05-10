@@ -1,6 +1,6 @@
 require 'pstore'
 
-module DAV4Rack
+module RackWebDAV
   class FileResourceLock
     attr_accessor :path
     attr_accessor :token
@@ -64,7 +64,7 @@ module DAV4Rack
       end
 
       def root
-        @root || '/tmp/dav4rack'
+        @root || '/tmp/rack-webdav'
       end
 
       def init_pstore(croot)

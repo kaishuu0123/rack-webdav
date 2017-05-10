@@ -1,20 +1,20 @@
 $:.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 
 require 'rubygems'
-require 'dav4rack'
+require 'rack-webdav'
 require 'fileutils'
 require 'nokogiri'
-require 'dav4rack/resources/mongo_resource'
+require 'rack-webdav/resources/mongo_resource'
 require 'mongo'
 require 'mongoid'
 require 'rspec'
 require File.join(File.dirname(__FILE__), 'handler_spec.rb')
 
-describe DAV4Rack::Handler do
+describe RackWebDAV::Handler do
 
   before do
     Mongoid.database = Mongo::Connection.new("localhost").db("test")
-    @controller = DAV4Rack::Handler.new(:root => '/webdav', :resource_class => ::DAV4Rack::MongoResource, :root_uri_path => '')
+    @controller = RackWebDAV::Handler.new(:root => '/webdav', :resource_class => ::RackWebDAV::MongoResource, :root_uri_path => '')
   end
 
   after do
@@ -291,7 +291,7 @@ describe DAV4Rack::Handler do
   context "when mapping a path" do
     
     before do
-      @controller = DAV4Rack::Handler.new(:root => '/webdav', :resource_class => ::DAV4Rack::MongoResource, :root_uri_path => '/webdav')
+      @controller = RackWebDAV::Handler.new(:root => '/webdav', :resource_class => ::RackWebDAV::MongoResource, :root_uri_path => '/webdav')
     end
     
     it "should return correct urls" do

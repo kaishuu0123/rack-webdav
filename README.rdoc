@@ -1,6 +1,6 @@
-== DAV4Rack - Web Authoring for Rack
+== RackWebDAV - Web Authoring for Rack
 
-DAV4Rack is a framework for providing WebDAV via Rack allowing content
+RackWebDAV is a framework for providing WebDAV via Rack allowing content
 authoring over HTTP. It is based off the {original RackDAV framework}[http://github.com/georgi/rack_dav]
 adding some useful new features:
 
@@ -20,61 +20,61 @@ a pull request with your modifications. If you are just here to use the library,
 
 === Via RubyGems
 
-    gem install dav4rack
+    gem install rack-webdav
     
 == Documentation
 
-* {DAV4Rack documentation}[http://chrisroberts.github.com/dav4rack]
+* {RackWebDAV documentation}[http://chrisroberts.github.com/rack-webdav]
 
 == Quickstart
 
 If you just want to share a folder over WebDAV, you can just start a
 simple server with:
 
-    dav4rack
+    rack-webdav
 
 This will start a Unicorn, Mongrel or WEBrick server on port 3000, which you can connect
 to without authentication. Unicorn and Mongrel will be much more responsive than WEBrick,
-so if you are having slowness issues, install one of them and restart the dav4rack process.
+so if you are having slowness issues, install one of them and restart the rack-webdav process.
 The simple file resource allows very basic authentication which is used for an example. To enable it:
 
-    dav4rack --username=user --password=pass
+    rack-webdav --username=user --password=pass
 
 == Rack Handler
 
-Using DAV4Rack within a rack application is pretty simple. A very slim
+Using RackWebDAV within a rack application is pretty simple. A very slim
 rackup script would look something like this:
 
   require 'rubygems'
-  require 'dav4rack'
+  require 'rack-webdav'
   
   use Rack::CommonLogger
-  run DAV4Rack::Handler.new(:root => '/path/to/public/fileshare')
+  run RackWebDAV::Handler.new(:root => '/path/to/public/fileshare')
   
 This will use the included FileResource and set the share path. However,
-DAV4Rack has some nifty little extras that can be enabled in the rackup script. First,
+RackWebDAV has some nifty little extras that can be enabled in the rackup script. First,
 an example of how to use a custom resource:
 
-  run DAV4Rack::Handler.new(:resource_class => CustomResource, :custom => 'options', :passed => 'to resource')
+  run RackWebDAV::Handler.new(:resource_class => CustomResource, :custom => 'options', :passed => 'to resource')
   
 Next, lets venture into mapping a path for our WebDAV access. In this example, we 
 will use default FileResource like in the first example, but instead of the WebDAV content
 being available at the root directory, we will map it to a specific directory: /webdav/share/
 
   require 'rubygems'
-  require 'dav4rack'
+  require 'rack-webdav'
   
   use Rack::CommonLogger
   
   app = Rack::Builder.new{
     map '/webdav/share/' do
-      run DAV4Rack::Handler.new(:root => '/path/to/public/fileshare', :root_uri_path => '/webdav/share/')
+      run RackWebDAV::Handler.new(:root => '/path/to/public/fileshare', :root_uri_path => '/webdav/share/')
     end
   }.to_app
   run app
   
 Aside from the Builder#map block, notice the new option passed to the Handler's initialization, :root_uri_path. When
-DAV4Rack receives a request, it will automatically convert the request to the proper path and pass it to
+RackWebDAV receives a request, it will automatically convert the request to the proper path and pass it to
 the resource.
 
 Another tool available when building the rackup script is the Interceptor. The Interceptor's job is  to simply
@@ -82,18 +82,18 @@ intecept WebDAV requests received up the path hierarchy where no resources are c
 lets continue with the last example but this time include the interceptor:
 
   require 'rubygems'
-  require 'dav4rack'
+  require 'rack-webdav'
   
   use Rack::CommonLogger
   app = Rack::Builder.new{
     map '/webdav/share/' do
-      run DAV4Rack::Handler.new(:root => '/path/to/public/fileshare', :root_uri_path => '/webdav/share/')
+      run RackWebDAV::Handler.new(:root => '/path/to/public/fileshare', :root_uri_path => '/webdav/share/')
     end
     map '/webdav/share2/' do
-      run DAV4Rack::Handler.new(:resource_class => CustomResource, :root_uri_path => '/webdav/share2/')
+      run RackWebDAV::Handler.new(:resource_class => CustomResource, :root_uri_path => '/webdav/share2/')
     end
     map '/' do
-      use DAV4Rack::Interceptor, :mappings => {
+      use RackWebDAV::Interceptor, :mappings => {
         '/webdav/share/' => {:resource_class => FileResource, :custom => 'option'},
         '/webdav/share2/' => {:resource_class => CustomResource}
       }
@@ -107,36 +107,36 @@ In this example we have two WebDAV resources restricted by path. This means thos
 and /webdav/share2/* but nothing above that. To allow webdav to respond, we provide the Interceptor. The Interceptor does not
 provide any authentication support. It simply creates a virtual file system view to the provided mapped paths. Once the actual
 resources have been reached, authentication will be enforced based on the requirements defined by the individual resource. Also
-note in the root map you can see we are running a Rails application. This is how you can easily enable DAV4Rack with your Rails
+note in the root map you can see we are running a Rails application. This is how you can easily enable RackWebDAV with your Rails
 application.
 
 === Enabling Logging
 
-DAV4Rack provides some simple logging in a Rails style format (simply for consistency) so the output should look some what familiar.
+RackWebDAV provides some simple logging in a Rails style format (simply for consistency) so the output should look some what familiar.
 
-  DAV4Rack::Handler.new(:resource_class => CustomResource, :log_to => '/my/log/file')
+  RackWebDAV::Handler.new(:resource_class => CustomResource, :log_to => '/my/log/file')
   
 You can even specify the level of logging:
 
-  DAV4Rack::Handler.new(:resource_class => CustomResource, :log_to => ['/my/log/file', Logger::DEBUG])
+  RackWebDAV::Handler.new(:resource_class => CustomResource, :log_to => ['/my/log/file', Logger::DEBUG])
 
 == Custom Resources
 
-Creating your own resource is easy. Simply inherit the DAV4Rack::Resource class, and start redefining all the methods
-you want to customize. The DAV4Rack::Resource class only has implementations for methods that can be provided extremely
+Creating your own resource is easy. Simply inherit the RackWebDAV::Resource class, and start redefining all the methods
+you want to customize. The RackWebDAV::Resource class only has implementations for methods that can be provided extremely
 generically. This means that most things will require at least some sort of implementation. However, because the Resource
 is defined so generically, and the Controller simply passes the request on to the Resource, it is easy to create fully
 virtualized resources.
 
 == Helpers
 
-There are some helpers worth mentioning that make things a little easier. DAV4Rack::Resource#accept_redirect? method is available to Resources.
+There are some helpers worth mentioning that make things a little easier. RackWebDAV::Resource#accept_redirect? method is available to Resources.
 If true, the currently connected client will accept and properly use a 302 redirect for a GET request. Most clients do not properly
 support this, which can be a real pain when working with virtualized files that may be located some where else, like S3. To deal with
-those clients that don't support redirects, a helper has been provided so resources don't have to deal with proxying themselves. The DAV4Rack::RemoteFile
+those clients that don't support redirects, a helper has been provided so resources don't have to deal with proxying themselves. The RackWebDAV::RemoteFile
 is a modified Rack::File that can do some interesting things. First, lets look at its most basic use:
 
-  class MyResource < DAV4Rack::Resource
+  class MyResource < RackWebDAV::Resource
     def setup
       @item = method_to_fill_this_properly
     end
@@ -145,7 +145,7 @@ is a modified Rack::File that can do some interesting things. First, lets look a
       if(accept_redirect?)
         response.redirect item[:url]
       else
-        response.body = DAV4Rack::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type)
+        response.body = RackWebDAV::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type)
         OK
       end
     end
@@ -155,13 +155,13 @@ This is a simple proxy. When Rack receives the RemoteFile, it will pull a chunk 
 sends it to the user over and over again until the EOF is reached. This much the same method that Rack::File uses but instead we are pulling
 from a socket rather than an actual file. Now, instead of proxying these files from a remote server every time, lets cache them:
 
-  response.body = DAV4Rack::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :cache_directory => '/tmp')
+  response.body = RackWebDAV::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :cache_directory => '/tmp')
 
 Providing the :cache_directory will let RemoteFile cache the items locally, and then search for them on subsequent requests before heading out
 to the network. The cached file name is based off the SHA1 hash of the file path, size and last modified time. It is important to note that for
 services like S3, the path will often change, making this cache pretty worthless. To combat this, we can provide a reference to use instead:
 
-  response.body = DAV4Rack::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :cache_directory => '/tmp', :cache_ref => item[:static_url])
+  response.body = RackWebDAV::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :cache_directory => '/tmp', :cache_ref => item[:static_url])
   
 These methods will work just fine, but it would be really nice to just let someone else deal with the proxying and let the process get back
 to dealing with actual requests. RemoteFile will happily do that as long as the frontend server is setup correctly. Using the sendfile approach
@@ -194,16 +194,16 @@ and as such should be applicable to other servers. First, a simplified NGINX ser
 
 With this in place, the parameters for the RemoteFile change slightly:
   
-  response.body = DAV4Rack::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :sendfile => true)
+  response.body = RackWebDAV::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :sendfile => true)
   
 The RemoteFile will automatically take care of building out the correct path and sending the proper headers. If the X-Accel-Remote-Mapping header
 is not available, you can simply pass the value:
 
-  response.body = DAV4Rack::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :sendfile => true, :sendfile_prefix => 'webdav_redirect')
+  response.body = RackWebDAV::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :sendfile => true, :sendfile_prefix => 'webdav_redirect')
   
 And if you don't have the X-Sendfile-Type header set, you can fix that by changing the value of :sendfile:
 
-  response.body = DAV4Rack::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :sendfile => 'X-Accel-Redirect', :sendfile_prefix => 'webdav_redirect')
+  response.body = RackWebDAV::RemoteFile.new(item[:url], :size => content_length, :mime_type => content_type, :sendfile => 'X-Accel-Redirect', :sendfile_prefix => 'webdav_redirect')
 
 And if you have none of the above because your server hasn't been configured for sendfile support, you're out of luck until it's configured.
 
@@ -226,7 +226,7 @@ to be called by the Controller, or anyone else, should be scoped protected or pr
 
 Callbacks can be called before or after a method call. For example:
 
-  class MyResource < DAV4Rack::Resource
+  class MyResource < RackWebDAV::Resource
     before do |resource, method_name|
       resource.send(:my_authentication_method)
     end
@@ -246,7 +246,7 @@ In this example MyResource#my_authentication_method will be called before any pu
 line will be printed to STDOUT. Running callbacks before/after every method call is a bit much in most cases, so callbacks can be applied to specific
 methods:
 
-  class MyResource < DAV4Rack::Resource
+  class MyResource < RackWebDAV::Resource
     before_get do |resource|
       puts "#{Time.now} -> Received GET request from resource: #{resource}"
     end
@@ -257,7 +257,7 @@ provided to callbacks. The method name is only provided to the generic before/af
 
 Something very handy for dealing with the mess of files OS X leaves on the system:
 
-  class MyResource < DAV4Rack::Resource
+  class MyResource < RackWebDAV::Resource
     after_unlock do |resource|
       resource.delete if resource.name[0,1] == '.'
     end
@@ -267,7 +267,7 @@ Because OS X implements locking correctly, we can wait until it releases the loc
 
 Callbacks are called in the order they are defined, so you can easily build callbacks off each other. Like this example:
 
-  class MyResource < DAV4Rack::Resource
+  class MyResource < RackWebDAV::Resource
     before do |resource, method_name|
       resource.DAV_authenticate unless resource.user.is_a?(User)
       raise Unauthorized unless resource.user.is_a?(User)
@@ -286,10 +286,10 @@ Something special to notice in the last example is the DAV_ prefix on authentica
 any callbacks being applied to the given method. This allows us to provide a public method that the callback can access on the resource
 without getting stuck in a loop.
 
-== Software using DAV4Rack!
+== Software using RackWebDAV!
 
 * {meishi}[https://github.com/inferiorhumanorgans/meishi] - Lightweight CardDAV implementation in Rails
-* {dav4rack_ext}[https://github.com/schmurfy/dav4rack_ext] - CardDAV extension. (CalDAV planned)
+* {rack-webdav_ext}[https://github.com/schmurfy/rack-webdav_ext] - CardDAV extension. (CalDAV planned)
 
 == Issues/Bugs/Questions
 
@@ -301,7 +301,7 @@ without getting stuck in a loop.
 
 === Unknown Issues
 
-Please use the issues at github: http://github.com/chrisroberts/dav4rack/issues
+Please use the issues at github: http://github.com/chrisroberts/rack-webdav/issues
 
 == Contributors
 

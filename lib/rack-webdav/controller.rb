@@ -1,10 +1,10 @@
 require 'uri'
 
-module DAV4Rack
+module RackWebDAV
   
   class Controller
-    include DAV4Rack::HTTPStatus
-    include DAV4Rack::Utils
+    include RackWebDAV::HTTPStatus
+    include RackWebDAV::Utils
     
     attr_reader :request, :response, :resource
 

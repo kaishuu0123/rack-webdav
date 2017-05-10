@@ -2,14 +2,14 @@
 
 require 'pstore'
 require 'webrick/httputils'
-require 'dav4rack/file_resource_lock'
+require 'rack-webdav/file_resource_lock'
 
-module DAV4Rack
+module RackWebDAV
 
   class FileResource < Resource
 
     include WEBrick::HTTPUtils
-    include DAV4Rack::Utils
+    include RackWebDAV::Utils
 
     # If this is a collection, return the child resources.
     def children
@@ -244,7 +244,7 @@ module DAV4Rack
         end
         begin
           lock_check(args[:type])
-        rescue DAV4Rack::LockFailure => lock_failure
+        rescue RackWebDAV::LockFailure => lock_failure
           lock.destroy
           raise lock_failure
         rescue HTTPStatus::Status => status
@@ -280,7 +280,7 @@ module DAV4Rack
       elsif(FileResourceLock.implicitly_locked?(@path, root))
         if(lock_type.to_s == 'exclusive')
           locks = FileResourceLock.implicit_locks(@path)
-          failure = DAV4Rack::LockFailure.new("Failed to lock: #{@path}")
+          failure = RackWebDAV::LockFailure.new("Failed to lock: #{@path}")
           locks.each do |lock|
             failure.add_failure(@path, Locked)
           end

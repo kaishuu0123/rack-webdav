@@ -1,5 +1,5 @@
-require 'dav4rack/interceptor_resource'
-module DAV4Rack
+require 'rack-webdav/interceptor_resource'
+module RackWebDAV
   class Interceptor
     def initialize(app, args={})
       @roots = args[:mappings].keys
@@ -14,7 +14,7 @@ module DAV4Rack
       method = env['REQUEST_METHOD'].upcase
       app = nil
       if(@roots.detect{|x| path =~ /^#{Regexp.escape(x.downcase)}\/?/}.nil? && @intercept_methods.include?(method))
-        app = DAV4Rack::Handler.new(:resource_class => InterceptorResource, :mappings => @args[:mappings], :log_to => @args[:log_to])
+        app = RackWebDAV::Handler.new(:resource_class => InterceptorResource, :mappings => @args[:mappings], :log_to => @args[:log_to])
       end
       app ? app.call(env) : @app.call(env)
     end

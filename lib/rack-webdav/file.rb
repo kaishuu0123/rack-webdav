@@ -2,8 +2,8 @@ require 'time'
 require 'rack/utils'
 require 'rack/mime'
 
-module DAV4Rack
-  # DAV4Rack::File simply allows us to use Rack::File but with the
+module RackWebDAV
+  # RackWebDAV::File simply allows us to use Rack::File but with the
   # specific location we deem appropriate
   class File < Rack::File
     attr_accessor :path
