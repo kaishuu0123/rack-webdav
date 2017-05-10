@@ -1,11 +1,11 @@
 require 'uri'
 
 module RackWebDAV
-  
+
   class Controller
     include RackWebDAV::HTTPStatus
     include RackWebDAV::Utils
-    
+
     attr_reader :request, :response, :resource
 
     # request:: Rack::Request
@@ -18,17 +18,17 @@ module RackWebDAV
       @request = request
       @response = response
       @options = options
-      
+
       @dav_extensions = options.delete(:dav_extensions) || []
       @always_include_dav_header = options.delete(:always_include_dav_header)
-      
+
       @resource = resource_class.new(actual_path, implied_path, @request, @response, @options)
-      
+
       if(@always_include_dav_header)
         add_dav_header
       end
     end
-    
+
     # s:: string
     # Escape URL string
     def url_format(resource)
@@ -38,20 +38,20 @@ module RackWebDAV
       end
       ret
     end
-    
+
     # s:: string
     # Unescape URL string
     def url_unescape(s)
       URI.unescape(s)
     end
-    
+
     def add_dav_header
       unless(response['Dav'])
         dav_support = %w(1 2) + @dav_extensions
         response['Dav'] = dav_support.join(', ')
       end
     end
-    
+
     # Return response to OPTIONS
     def options
       add_dav_header
@@ -59,7 +59,7 @@ module RackWebDAV
       response['Ms-Author-Via'] = 'DAV'
       OK
     end
-    
+
     # Return response to HEAD
     def head
       if(resource.exist?)
@@ -71,7 +71,7 @@ module RackWebDAV
         NotFound
       end
     end
-    
+
     # Return response to GET
     def get
       if(resource.exist?)
@@ -117,7 +117,7 @@ module RackWebDAV
         NotFound
       end
     end
-    
+
     # Return response to MKCOL
     def mkcol
       resource.lock_check if resource.supports_locking?
@@ -135,7 +135,7 @@ module RackWebDAV
         status
       end
     end
-    
+
     # Return response to COPY
     def copy
       move(:copy)
@@ -180,7 +180,7 @@ module RackWebDAV
         end
       end
     end
-    
+
     # Return response to PROPFIND
     def propfind
       unless(resource.exist?)
@@ -225,7 +225,7 @@ module RackWebDAV
         end
       end
     end
-    
+
     # Return response to PROPPATCH
     def proppatch
       unless(resource.exist?)
@@ -266,7 +266,7 @@ module RackWebDAV
 
     # Lock current resource
     # NOTE: This will pass an argument hash to Resource#lock and
-    # wait for a success/failure response. 
+    # wait for a success/failure response.
     def lock
       lockinfo = request_document.xpath("//#{ns}lockinfo")
       asked = {}
@@ -344,29 +344,29 @@ module RackWebDAV
       end
       raise Unauthorized unless authed
     end
-    
+
     private
 
     # Request environment variables
     def env
       @request.env
     end
-    
+
     # Current request scheme (http/https)
     def scheme
       request.scheme
     end
-    
+
     # Request host
     def host
       request.host
     end
-    
+
     # Request port
     def port
       request.port
     end
-    
+
     # Class of the resource in use
     def resource_class
       @options[:resource_class]
@@ -376,12 +376,12 @@ module RackWebDAV
     def root_uri_path
       @options[:root_uri_path]
     end
-    
+
     # Returns Resource path with root URI removed
     def implied_path
       clean_path(@request.path.dup)
     end
-    
+
     # x:: request path
     # Unescapes path and removes root URI if applicable
     def clean_path(x)
@@ -389,7 +389,7 @@ module RackWebDAV
       ip.gsub!(/^#{Regexp.escape(root_uri_path)}/, '') if root_uri_path
       ip
     end
-    
+
     # Unescaped request path
     def actual_path
       url_unescape(@request.path.dup)
@@ -399,7 +399,7 @@ module RackWebDAV
     def lock_token
       env['HTTP_LOCK_TOKEN'] || nil
     end
-    
+
     # Requested depth
     def depth
       d = env['HTTP_DEPTH']
@@ -415,7 +415,7 @@ module RackWebDAV
     def http_version
       env['HTTP_VERSION'] || env['SERVER_PROTOCOL'] || 'HTTP/1.0'
     end
-    
+
     # Overwrite is allowed
     def overwrite
       env['HTTP_OVERWRITE'].to_s.upcase != 'F'
@@ -434,7 +434,7 @@ module RackWebDAV
       end
       with_current_resource ? [resource] + ary : ary
     end
-    
+
     # XML parsed request
     def request_document
       @request_document ||= Nokogiri.XML(request.body.read)
@@ -458,7 +458,7 @@ module RackWebDAV
       end
       _ns
     end
-    
+
     # root_type:: Root tag name
     # Render XML and set Rack::Response#body= to final XML
     def render_xml(root_type)
@@ -470,7 +470,7 @@ module RackWebDAV
           yield xml
         end
       end
-     
+
       if(@options[:pretty_xml])
         response.body = doc.to_xml
       else
@@ -481,7 +481,7 @@ module RackWebDAV
       response["Content-Type"] = 'text/xml; charset="utf-8"'
       response["Content-Length"] = response.body.size.to_s
     end
-      
+
     # block:: block
     # Creates a multistatus response using #render_xml and
     # returns the correct status
@@ -489,7 +489,7 @@ module RackWebDAV
       render_xml(:multistatus, &block)
       MultiStatus
     end
-    
+
     # xml:: Nokogiri::XML::Builder
     # errors:: Array of errors
     # Crafts responses for errors
@@ -545,7 +545,7 @@ module RackWebDAV
       end
       stats
     end
-    
+
     # xml:: Nokogiri::XML::Builder
     # stats:: Array of stats
     # Build propstats response
@@ -590,14 +590,12 @@ module RackWebDAV
         end
       end
     end
-    
+
     # xml:: Nokogiri::XML::Builder
     # element:: Nokogiri::XML::Element
     # Converts element into proper text
     def xml_convert(xml, element)
       xml.doc.root.add_child(element)
     end
-
   end
-
-end 
+end
