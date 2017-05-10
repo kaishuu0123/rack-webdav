@@ -51,8 +51,7 @@ module RackWebDAV
 
         Logger.debug "Response in string form. Outputting contents: \n#{response.body}" if response.body.is_a?(String)
         Logger.info "Completed in: #{((Time.now.to_f - start.to_f) * 1000).to_i} ms | #{response.status} [#{request.url}]"
-        
-        response.body.is_a?(Rack::File) ? response.body.call(env) : response.finish
+        response.finish
       rescue Exception => e
         Logger.error "WebDAV Error: #{e}\n#{e.backtrace.join("\n")}"
         raise e

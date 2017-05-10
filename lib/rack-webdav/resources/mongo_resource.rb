@@ -82,7 +82,7 @@ module RackWebDAV
     def content_type
 #     if stat.directory?
 #       "text/html"
-#     else 
+#     else
 #       mime_type(file_path, DefaultMimeTypes)
 #     end
       @bson['contentType'] || "text/html"
@@ -240,7 +240,7 @@ module RackWebDAV
         # http://mongoid.org/docs/persistence/atomic.html
         # http://rubydoc.info/github/mongoid/mongoid/master/Mongoid/Collection#update-instance_method
         @collection.update({'_id' => bson['_id']}, {'$set' => {'filename' => dst_name}}, :safe => true)
-        
+
         @collection.remove(exists) if exists
       end
 
@@ -264,7 +264,7 @@ module RackWebDAV
 
       # 0バイトのファイルを作成しディレクトリの代わりとする
       @filesystem.open(file_path, "w") { |f| } if !bson
- 
+
 #      @@logger.error('make_collection : ' + file_path)
 
       Created
