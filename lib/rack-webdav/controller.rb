@@ -206,7 +206,9 @@ module RackWebDAV
               hsh
             }.compact
           else
-            raise BadRequest
+            # XXX: Compatibility for Windows.
+            # raise BadRequest
+            properties = []
           end
         end
         multistatus do |xml|
