@@ -13,5 +13,5 @@ module RackWebDAV
     end
   end
 
-  VERSION = Version.new('0.4.0')
+  VERSION = Version.new('0.4.1')
 end
