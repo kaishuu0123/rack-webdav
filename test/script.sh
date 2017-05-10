@@ -16,9 +16,9 @@ rm -rf /tmp/dav-file-store
 mkdir /tmp/dav-file-store
 
 # Run litmus test
-bundle exec dav4rack --root /tmp/dav-file-store &
+bundle exec rack-webdav --root /tmp/dav-file-store &
 
-# Allow time for dav4rack to get started
+# Allow time for rack-webdav to get started
 sleep 3
 
 DAV_PID=$?

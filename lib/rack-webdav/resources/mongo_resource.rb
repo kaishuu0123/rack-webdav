@@ -1,9 +1,9 @@
 # coding: utf-8
 require 'mime/types'
 
-module DAV4Rack
+module RackWebDAV
 
-  class MongoResource < DAV4Rack::Resource
+  class MongoResource < RackWebDAV::Resource
 
 #    @@logger = Rails.logger
 

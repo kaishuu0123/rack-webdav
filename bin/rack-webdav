@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'dav4rack/version'
+require 'rack-webdav/version'
 require 'getoptlong'
 
 def print_help_msg
   print_version_info
-  puts "Usage: dav4rack [opts]"
+  puts "Usage: rack-webdav [opts]"
   puts " --help               Print help message"
   puts " --version            Print version information"
   puts " --username name      Set username"
@@ -17,7 +17,7 @@ def print_help_msg
 end
 
 def print_version_info
-  puts "DAV 4 Rack - Rack based WebDAV Framework - Version: #{DAV4Rack::VERSION}"
+  puts "DAV 4 Rack - Rack based WebDAV Framework - Version: #{RackWebDAV::VERSION}"
 end
 
 opts = GetoptLong.new(
@@ -83,7 +83,7 @@ opts.each do |opt,arg|
   end
 end
 
-require 'dav4rack'
+require 'rack-webdav'
 
 app = Rack::Builder.new do
   use Rack::ShowExceptions
@@ -91,7 +91,7 @@ app = Rack::Builder.new do
   use Rack::Reloader
   use Rack::Lint
 
-  run DAV4Rack::Handler.new(credentials)
+  run RackWebDAV::Handler.new(credentials)
 
 end.to_app
 

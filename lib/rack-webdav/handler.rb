@@ -1,13 +1,13 @@
-require 'dav4rack/logger'
+require 'rack-webdav/logger'
 
-module DAV4Rack
+module RackWebDAV
   
   class Handler
-    include DAV4Rack::HTTPStatus    
+    include RackWebDAV::HTTPStatus    
     def initialize(options={})
       @options = options.dup
       unless(@options[:resource_class])
-        require 'dav4rack/resources/file_resource'
+        require 'rack-webdav/resources/file_resource'
         @options[:resource_class] = FileResource
         @options[:root] ||= Dir.pwd
       end

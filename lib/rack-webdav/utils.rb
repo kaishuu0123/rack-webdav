@@ -1,6 +1,6 @@
 require 'ostruct'
 
-module DAV4Rack
+module RackWebDAV
 
   # Simple wrapper for formatted elements
   class DAVElement < OpenStruct

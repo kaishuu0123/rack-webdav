@@ -1,5 +1,5 @@
-require 'dav4rack/lock'
-module DAV4Rack
+require 'rack-webdav/lock'
+module RackWebDAV
   class LockStore
     class << self
       def create
@@ -58,4 +58,4 @@ module DAV4Rack
   end
 end
 
-DAV4Rack::LockStore.create
+RackWebDAV::LockStore.create

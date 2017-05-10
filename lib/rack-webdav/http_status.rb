@@ -1,4 +1,4 @@
-module DAV4Rack
+module RackWebDAV
 
   module HTTPStatus
     
@@ -97,7 +97,7 @@ end
 module Rack
   class Response
     module Helpers
-      DAV4Rack::HTTPStatus::StatusMessage.each do |code, reason_phrase|
+      RackWebDAV::HTTPStatus::StatusMessage.each do |code, reason_phrase|
         name = reason_phrase.gsub(/[ \-]/,'_').downcase
         define_method(name + '?') do
           @status == code

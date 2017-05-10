@@ -1,6 +1,6 @@
 require 'digest/sha1'
 
-module DAV4Rack
+module RackWebDAV
 
   class InterceptorResource < Resource
     attr_reader :path, :options

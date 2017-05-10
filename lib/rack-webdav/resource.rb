@@ -1,7 +1,7 @@
 require 'uuidtools'
-require 'dav4rack/http_status'
+require 'rack-webdav/http_status'
 
-module DAV4Rack
+module RackWebDAV
   
   class LockFailure < RuntimeError
     attr_reader :path_status
@@ -48,7 +48,7 @@ module DAV4Rack
       
     end
     
-    include DAV4Rack::HTTPStatus
+    include RackWebDAV::HTTPStatus
     
     # public_path:: Path received via request
     # path:: Internal resource path (Only different from public path when using root_uri's for webdav)
@@ -77,7 +77,7 @@ module DAV4Rack
       @request = request
       @response = response
       unless(options.has_key?(:lock_class))
-        require 'dav4rack/lock_store'
+        require 'rack-webdav/lock_store'
         @lock_class = LockStore
       else
         @lock_class = options[:lock_class]
@@ -267,7 +267,7 @@ module DAV4Rack
           end
           begin
             lock_check(args[:type])
-          rescue DAV4Rack::LockFailure => lock_failure
+          rescue RackWebDAV::LockFailure => lock_failure
             lock.destroy
             raise lock_failure
           rescue HTTPStatus::Status => status
@@ -279,7 +279,7 @@ module DAV4Rack
     end
 
     # lock_scope:: scope of lock
-    # Check if resource is locked. Raise DAV4Rack::LockFailure if locks are in place.
+    # Check if resource is locked. Raise RackWebDAV::LockFailure if locks are in place.
     def lock_check(lock_scope=nil)
       return unless @lock_class
       if(@lock_class.explicitly_locked?(@path))
@@ -287,7 +287,7 @@ module DAV4Rack
       elsif(@lock_class.implicitly_locked?(@path))
         if(lock_scope.to_s == 'exclusive')
           locks = @lock_class.implicit_locks(@path)
-          failure = DAV4Rack::LockFailure.new("Failed to lock: #{@path}")
+          failure = RackWebDAV::LockFailure.new("Failed to lock: #{@path}")
           locks.each do |lock|
             failure.add_failure(@path, Locked)
           end

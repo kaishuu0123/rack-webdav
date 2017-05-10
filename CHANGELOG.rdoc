@@ -9,8 +9,8 @@
 * Allow customized DAV headers (thanks {schmurfy}[https://github.com/schmurfy])
 * Extract parent collection detection to resource (thanks {schmurfy}[https://github.com/schmurfy])
 * Start of new locking implementation
-* Fix rack #serving usage in DAV4Rack::File (thanks {pifleo}[https://github.com/pifleo])
-* Force file namespacing in file resource to prevent conflicts with DAV4Rack::File (thanks {pifleo}[https://github.com/pifleo])
+* Fix rack #serving usage in RackWebDAV::File (thanks {pifleo}[https://github.com/pifleo])
+* Force file namespacing in file resource to prevent conflicts with RackWebDAV::File (thanks {pifleo}[https://github.com/pifleo])
 * Add ability to build xml from within a resource (thanks {mlmorg}[https://github.com/mlmorg])
 
 === v0.2.11
@@ -31,11 +31,11 @@
 
 === v0.2.8
 * Allow custom logger types to be used
-* Allow resource to handle existence on locking (fixes issue {#21}[https://github.com/chrisroberts/dav4rack/issues/21] thanks {doxavore}[https://github.com/doxavore])
+* Allow resource to handle existence on locking (fixes issue {#21}[https://github.com/chrisroberts/rack-webdav/issues/21] thanks {doxavore}[https://github.com/doxavore])
 * Removed exception based control flow in favor of logic based control flow
 
 === v0.2.7
-* Include location content within PUT response body (fixes issue described in {#20}[https://github.com/chrisroberts/dav4rack/issues/20])
+* Include location content within PUT response body (fixes issue described in {#20}[https://github.com/chrisroberts/rack-webdav/issues/20])
 
 === v0.2.6
 * Update response header from PUT to use Location
@@ -71,13 +71,13 @@
 * Fix in interceptor to use correct File
 
 === v0.1.6
-* Add DAV4Rack::File that overloads just enough of Rack::File to allow explicit path setting
+* Add RackWebDAV::File that overloads just enough of Rack::File to allow explicit path setting
 
 === v0.1.5
 * Remove support for options[:delete_dotfiles]
 * Allow HTTP methods to be ignored within interceptor
 * Add owner information to lock response
-* Initial update of spec to work with DAV4Rack
+* Initial update of spec to work with RackWebDAV
 * Copy and delete recursively
 * Add expected overwrite for copy/move on resource (thanks {clyfe}[http://github.com/clyfe])
 * Add overwrite logic for copy/move on FileResource
