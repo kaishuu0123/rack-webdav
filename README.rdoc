@@ -1,9 +1,19 @@
-== RackWebDAV - Web Authoring for Rack
+= RackWebDAV - Web Authoring for Rack
 
-RackWebDAV is a framework for providing WebDAV via Rack allowing content
-authoring over HTTP. It is based off the {original RackDAV framework}[http://github.com/georgi/rack_dav]
-adding some useful new features:
+RackWebDAV based by (dav4rack)[https://github.com/chrisroberts/dav4rack]
 
+== Motivaion
+
+* dav4rack no maintained
+* I want to implment the following functions
+    * WebDAV RFC 3253 ( https://www.ietf.org/rfc/rfc3253.txt )
+        * because support Subversion (SVN) 
+    * Rails 5 support
+    * Rack 2.0 support
+
+== Current Feature
+
+=== From DAV4Rack
 * Better resource support for building fully virtualized resource structures
 * Generic locking as well as Resource level specific locking
 * Interceptor middleware to provide virtual mapping to resources
@@ -11,20 +21,19 @@ adding some useful new features:
 * Authentication support
 * Resource callbacks
 * Remote file proxying (including sendfile support for remote files)
-* Nokogiri based document parsing and building
 
-If you find issues, please create a new issue on github. If you have fixes, please fork the repo and send me
-a pull request with your modifications. If you are just here to use the library, enjoy!
+=== RackWebDAV original
+* Rack 2.0 support
+* serveral bugfix
 
 == Install
-
-=== Via RubyGems
+=== RubyGems
 
     gem install rack-webdav
     
 == Documentation
 
-* {RackWebDAV documentation}[http://chrisroberts.github.com/rack-webdav]
+* TODO
 
 == Quickstart
 
