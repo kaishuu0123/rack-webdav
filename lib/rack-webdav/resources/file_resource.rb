@@ -181,7 +181,7 @@ module RackWebDAV
         if(::File.directory?(file_path))
           MethodNotAllowed
         else
-          if(::File.directory?(::File.dirname(file_path)) && !::File.exists?(file_path))
+          if(::File.directory?(::File.dirname(file_path)) && !::File.exists?(file_path) && !::File.exists?(file_path.gsub(/\/$/, '')))
             Dir.mkdir(file_path)
             Created
           else
@@ -299,7 +299,12 @@ module RackWebDAV
           end
           raise failure
         else
-          locks = FileResourceLock.implict_locks(@path).find(:all, :conditions => ["scope = 'exclusive' AND user_id != ?", @user.id])
+          if @user.respond_to?(:id)
+            locks = FileResourceLock.implict_locks(@path).find(:all, :conditions => ["scope = 'exclusive' AND user_id != ?", @user.id])
+          else
+            locks = []
+          end
+
           if(locks.size > 0)
             failure = LockFailure.new("Failed to lock: #{@path}")
             locks.each do |lock|

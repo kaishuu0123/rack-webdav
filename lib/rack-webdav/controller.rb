@@ -41,8 +41,8 @@ module RackWebDAV
 
     # s:: string
     # Unescape URL string
-    def url_unescape(s)
-      URI.unescape(s)
+    def url_unescape(s, encoding = Encoding::UTF_8)
+      URI.decode_www_form_component(s, encoding)
     end
 
     def add_dav_header
@@ -206,9 +206,7 @@ module RackWebDAV
               hsh
             }.compact
           else
-            # XXX: Compatibility for Windows.
-            # raise BadRequest
-            properties = []
+            raise BadRequest
           end
         end
         multistatus do |xml|
