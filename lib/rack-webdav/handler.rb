@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'rack-webdav/logger'
 
 module RackWebDAV
