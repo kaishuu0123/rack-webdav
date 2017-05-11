@@ -189,24 +189,29 @@ module RackWebDAV
         unless(request_document.xpath("//#{ns}propfind/#{ns}allprop").empty?)
           properties = resource.properties
         else
-          check = request_document.xpath("//#{ns}propfind")
-          if(check && !check.empty?)
-            properties = request_document.xpath(
-              "//#{ns}propfind/#{ns}prop"
-            ).children.find_all{ |item|
-              item.element?
-            }.map{ |item|
-              # We should do this, but Nokogiri transforms prefix w/ null href into
-              # something valid.  Oops.
-              # TODO: Hacky grep fix that's horrible
-              hsh = to_element_hash(item)
-              if(hsh.namespace.nil? && !ns.empty?)
-                raise BadRequest if request_document.to_s.scan(%r{<#{item.name}[^>]+xmlns=""}).empty?
-              end
-              hsh
-            }.compact
+          if request.body.read.bytesize > 0
+            request.body.rewind
+            check = request_document.xpath("//#{ns}propfind")
+            if(check && !check.empty?)
+              properties = request_document.xpath(
+                "//#{ns}propfind/#{ns}prop"
+              ).children.find_all{ |item|
+                item.element?
+              }.map{ |item|
+                # We should do this, but Nokogiri transforms prefix w/ null href into
+                # something valid.  Oops.
+                # TODO: Hacky grep fix that's horrible
+                hsh = to_element_hash(item)
+                if(hsh.namespace.nil? && !ns.empty?)
+                  raise BadRequest if request_document.to_s.scan(%r{<#{item.name}[^>]+xmlns=""}).empty?
+                end
+                hsh
+              }.compact
+            else
+              raise BadRequest
+            end
           else
-            raise BadRequest
+            properties = []
           end
         end
         multistatus do |xml|
@@ -435,6 +440,7 @@ module RackWebDAV
 
     # XML parsed request
     def request_document
+      request.body.rewind
       @request_document ||= Nokogiri.XML(request.body.read)
     rescue
       raise BadRequest
