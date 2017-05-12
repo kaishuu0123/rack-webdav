@@ -1,89 +1,11 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require 'rack-webdav/version'
-require 'getoptlong'
-
-def print_help_msg
-  print_version_info
-  puts "Usage: rack-webdav [opts]"
-  puts " --help               Print help message"
-  puts " --version            Print version information"
-  puts " --username name      Set username"
-  puts " --password pass      Set password"
-  puts " --root /share/path   Set path to share directory"
-  puts " --log /path/to/log   Set path for logging file"
-  puts " --verbosity opt      Set logging verbosity. (Valid: debug,info,warn,fatal)"
-end
-
-def print_version_info
-  puts "DAV 4 Rack - Rack based WebDAV Framework - Version: #{RackWebDAV::VERSION}"
-end
-
-opts = GetoptLong.new(
-  ['--username', '-u', GetoptLong::REQUIRED_ARGUMENT],
-  ['--password', '-p', GetoptLong::REQUIRED_ARGUMENT],
-  ['--help', '-h', GetoptLong::NO_ARGUMENT],
-  ['--version', '-v', GetoptLong::NO_ARGUMENT],
-  ['--root', '-r', GetoptLong::REQUIRED_ARGUMENT],
-  ['--log', '-l', GetoptLong::OPTIONAL_ARGUMENT],
-  ['--verbosity', '-V', GetoptLong::REQUIRED_ARGUMENT],
-  ['--pretty-xml', '-P', GetoptLong::REQUIRED_ARGUMENT]
-)
-
-credentials = {}
-
-opts.each do |opt,arg|
-  case opt
-  when '--help'
-    print_help_msg
-    exit(0)
-  when '--username'
-    credentials[:username] = arg
-  when '--password'
-    credentials[:password] = arg
-  when '--root'
-    credentials[:root] = arg
-    unless(File.exists?(arg) && File.directory?(arg))
-      puts "ERROR: Path provided is not a valid directory (#{arg})"
-      exit(-1)
-    end
-  when '--pretty-xml'
-    credentials[:pretty_xml] = true
-  when '--version'
-    print_version_info
-    exit(0)
-  when '--log'
-    require 'pathname'
-    require 'logger'
-    credentials[:log_to] = [nil, Logger::FATAL] unless credentials[:log_to]
-    if(arg && !arg.empty?)
-      dirname = Pathname.new(arg).dirname
-      if((File.exists?(arg) && File.writable?(arg)) || (File.exists?(dirname) && File.writable?(dirname)))
-        credentials[:log_to][0] = arg
-      else
-        puts "ERROR: Log file is not writable: #{arg}"
-        exit(-1)
-      end
-    else
-      credentials[:log_to][0] = $stdout
-    end
-  when '--verbosity'
-    require 'logger'
-    begin
-      credentials[:log_to] = [] unless credentials[:log_to]
-      credentials[:log_to][1] = Logger.const_get(arg.upcase)
-    rescue NameError
-      puts "ERROR: Unknown verbosity level given: #{arg}"
-      exit(-1)
-    end
-  else
-    puts "ERROR: Unknown option provided"
-    exit(-1)
-  end
-end
+$:.unshift(File.expand_path("../../lib", __FILE__))
 
 require 'rack-webdav'
+
+root=ARGV[1] || Dir.pwd
+port = ARGV[0] || 3000
 
 app = Rack::Builder.new do
   use Rack::ShowExceptions
@@ -91,36 +13,16 @@ app = Rack::Builder.new do
   use Rack::Reloader
   use Rack::Lint
 
-  run RackWebDAV::Handler.new(credentials)
-
+  run RackWebDAV::Handler.new(:root => root)
 end.to_app
 
-runners = []
-runners << lambda do |x|
-  print 'Looking for unicorn... '
-  require 'unicorn'
-  puts 'OK'
-  if(Unicorn.respond_to?(:run))
-    Unicorn.run(x, :listeners => ["0.0.0.0:3000"])
-  else
-    Unicorn::HttpServer.new(x, :listeners => ["0.0.0.0:3000"]).start.join
-  end
-end
-runners << lambda do |x|
-  print 'Looking for mongrel... '
-  require 'mongrel'
-  puts 'OK'
-  Rack::Handler::Mongrel.run(x, :Port => 3000)
-end
-runners << lambda do |x|
-  puts 'Loading WEBrick'
-  Rack::Handler::WEBrick.run(x, :Port => 3000)
-end
-
 begin
-  runner = runners.shift
-  runner.call(app)
-rescue LoadError
-  puts 'FAILED'
-  retry unless runners.empty?
+  require 'unicorn'
+  Unicorn::HttpServer.new(app, :listeners => ["0.0.0.0:3000"]).start.join
+rescue NameError, LoadError
+  begin
+    Rack::Handler::WEBrick.run(app, Host: '0.0.0.0', Port: port)
+  rescue NameError, LoadError
+    Rack::Handler::Mongrel.run(app, Host: '0.0.0.0', Port: port)
+  end
 end
