@@ -1,14 +1,6 @@
 #!/bin/sh 
 
-# Run buitin spec tests
-bundle exec rake test
-
-if [ $? -ne 0 ] ; then
-  echo "*** Specs failed to properly complete"
-  exit 1
-fi
-
-echo "*** Specs passed. Starting litmus"
+echo "*** Starting litmus"
 echo
 
 # Ensure fresh store directory
@@ -16,7 +8,7 @@ rm -rf /tmp/dav-file-store
 mkdir /tmp/dav-file-store
 
 # Run litmus test
-bundle exec rack-webdav --root /tmp/dav-file-store &
+bundle exec rack-webdav 3000 /tmp/dav-file-store &
 
 # Allow time for rack-webdav to get started
 sleep 3
@@ -37,7 +29,7 @@ make URL=http://localhost:3000/ check
 
 LITMUS=$?
 
-kill $DAV_PID
+kill -TERM $DAV_PID
 
 if [ $? -ne 0 ] ; then
   echo

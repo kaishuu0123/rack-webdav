@@ -1,17 +1,16 @@
 module RackWebDAV
-  class Version
 
-    attr_reader :major, :minor, :tiny
+  # Holds information about library version.
+  module Version
+    MAJOR = 0
+    MINOR = 4
+    PATCH = 3
+    BUILD = nil
 
-    def initialize(version)
-      version = version.split('.')
-      @major, @minor, @tiny = [version[0].to_i, version[1].to_i, version[2].to_i]
-    end
-
-    def to_s
-      "#{@major}.#{@minor}.#{@tiny}"
-    end
+    STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join(".")
   end
 
-  VERSION = Version.new('0.4.3')
+  # The current library version.
+  VERSION = Version::STRING
+
 end

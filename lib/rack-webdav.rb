@@ -1,11 +1,15 @@
+
+require 'rubygems'
 require 'time'
 require 'uri'
+require 'rexml/document'
 require 'nokogiri'
+require 'webrick/httputils'
 
 require 'rack'
-require 'rack-webdav/utils'
 require 'rack-webdav/http_status'
 require 'rack-webdav/resource'
+require 'rack-webdav/file_resource'
 require 'rack-webdav/handler'
 require 'rack-webdav/controller'
 
