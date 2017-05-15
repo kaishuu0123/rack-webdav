@@ -110,6 +110,10 @@ module RackWebDAV
         content_md5_pass?(@request.env) or raise HTTPStatus::BadRequest.new('Content-MD5 mismatch')
       end
 
+      if content_continue_pass?(@request.env)
+        raise HTTPStatus::Continue.new()
+      end
+
       write(@request.body)
     end
 
@@ -209,6 +213,11 @@ module RackWebDAV
         expected == actual
       end
 
+      def content_continue_pass?(env)
+        expected = env['HTTP_EXPECT'] or return false
+
+        expected.downcase == '100-continue'
+      end
   end
 
 end
