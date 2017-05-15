@@ -33,4 +33,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'awesome_print'
   s.add_development_dependency 'hirb'
   s.add_development_dependency 'hirb-unicode'
+  s.add_development_dependency 'rubocop'
 end
