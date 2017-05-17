@@ -17,12 +17,17 @@ app = Rack::Builder.new do
 end.to_app
 
 begin
-  require 'unicorn'
-  Unicorn::HttpServer.new(app, :listeners => ["0.0.0.0:3000"]).start.join
-rescue NameError, LoadError
-  begin
-    Rack::Handler::WEBrick.run(app, Host: '0.0.0.0', Port: port)
-  rescue NameError, LoadError
-    Rack::Handler::Mongrel.run(app, Host: '0.0.0.0', Port: port)
-  end
+  require 'rack/handler/puma'
+  Rack::Handler::Puma.run(app, Host: '0.0.0.0', Port: port)
+# rescue NameError, LoadError
+#  begin
+#    require 'unicorn'
+#    Unicorn::HttpServer.new(app, :listeners => ["0.0.0.0:3000"]).start.join
+#  rescue NameError, LoadError
+#    begin
+#      Rack::Handler::WEBrick.run(app, Host: '0.0.0.0', Port: port)
+#    rescue NameError, LoadError
+#      Rack::Handler::Mongrel.run(app, Host: '0.0.0.0', Port: port)
+#    end
+#  end
 end

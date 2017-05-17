@@ -160,6 +160,8 @@ module RackWebDAV
       when 'getlastmodified' then self.last_modified = Time.httpdate(value)
       else self.set_custom_property(name, value) if self.respond_to?(:set_custom_property)
       end
+    rescue Errno::EOPNOTSUPP
+      # nothing done
     rescue ArgumentError
       raise HTTPStatus::Conflict
     end

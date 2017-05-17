@@ -62,6 +62,7 @@ module RackWebDAV
         resource.put
       end
       response.status = Created
+      response['Location'] = "#{request.scheme}://#{request.host}:#{request.port}#{url_format_for_response(resource)}"
     end
 
     def post
@@ -556,6 +557,14 @@ module RackWebDAV
         destination = url_unescape(dest_uri.path)
         destination.slice!(1..@request.script_name.length) if @request.script_name.length > 0
         destination
+      end
+
+      def url_format_for_response(resource)
+        ret = URI.escape(resource.path)
+        if resource.collection? and ret[-1,1] != '/'
+          ret += '/'
+        end
+        ret
       end
 
   end
