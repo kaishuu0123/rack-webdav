@@ -1,3 +1,8 @@
+=== v0.4.4
+* Support PUMA
+* several add development dependency
+* support file lock.
+
 === v0.4.3
 * fix several tests
 * Support Windows WebDAV Client
