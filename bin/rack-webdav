@@ -7,11 +7,18 @@ require 'rack-webdav'
 root=ARGV[1] || Dir.pwd
 port = ARGV[0] || 3000
 
+require 'rack-timeout'
+
+Rack::Timeout::Logger.device = $stderr
+Rack::Timeout::Logger.level  = Logger::INFO
+Rack::Timeout.service_timeout = 50
+
 app = Rack::Builder.new do
   use Rack::ShowExceptions
   use Rack::CommonLogger
   use Rack::Reloader
   use Rack::Lint
+  use Rack::Timeout
 
   run RackWebDAV::Handler.new(:root => root)
 end.to_app
