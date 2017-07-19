@@ -1,3 +1,6 @@
+=== v0.4.5
+* cover litmus 'lock' test over 90%
+
 === v0.4.4
 * Support PUMA
 * several add development dependency
