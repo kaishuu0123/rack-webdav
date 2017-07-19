@@ -58,6 +58,12 @@ module RackWebDAV
 
     def put
       raise Forbidden if resource.collection?
+      locktoken = request_locktoken('LOCK_TOKEN')
+      locktoken ||= request_locktoken('IF')
+      locketag = request_locketag('IF')
+      raise PreconditionFailed if locketag && locketag != resource.etag
+      raise Locked if resource.locked?(locktoken, locketag)
+
       map_exceptions do
         resource.put
       end
@@ -73,6 +79,7 @@ module RackWebDAV
 
     def delete
       raise NotFound if not resource.exist?
+      raise Locked if resource.locked?(request_locktoken('LOCK_TOKEN'))
 
       delete_recursive(resource, errors = [])
 
@@ -98,6 +105,10 @@ module RackWebDAV
 
     def copy
       raise NotFound if not resource.exist?
+      # Source Lock Check
+      locktoken = request_locktoken('LOCK_TOKEN')
+      locktoken ||= request_locktoken('IF')
+      raise Locked if resource.locked?(locktoken) && !overwrite
 
       dest_uri = URI.parse(env['HTTP_DESTINATION'])
       destination = parse_destination(dest_uri)
@@ -107,6 +118,10 @@ module RackWebDAV
 
       dest = resource_class.new(destination, @request, @response, @options)
       raise PreconditionFailed if dest.exist? && !overwrite
+      # Destination Lock Check
+      locktoken = request_locktoken('LOCK_TOKEN')
+      locktoken ||= request_locktoken('IF')
+      raise Locked if dest.locked?(locktoken)
 
       dest = dest.child(resource.name) if dest.collection?
 
@@ -127,6 +142,7 @@ module RackWebDAV
 
     def move
       raise NotFound if not resource.exist?
+      raise Locked if resource.locked?(request_locktoken('LOCK_TOKEN'))
 
       dest_uri = URI.parse(env['HTTP_DESTINATION'])
       destination = parse_destination(dest_uri)
@@ -195,6 +211,9 @@ module RackWebDAV
 
     def proppatch
       raise NotFound if not resource.exist?
+      locktoken = request_locktoken('LOCK_TOKEN')
+      locktoken ||= request_locktoken('IF')
+      raise Locked if resource.locked?(locktoken)
 
       nodes = request_match("/d:propertyupdate[d:remove/d:prop/* or d:set/d:prop/*]//d:prop/*")
 
@@ -380,7 +399,14 @@ module RackWebDAV
       def request_locktoken(header)
         token = request.env["HTTP_#{header}"]
         return if token.nil? || token.empty?
-        token.scan /^\(?<?(.+?)>?\)?$/
+        token.scan /<(opaquelocktoken:.+?)>/
+        return $1
+      end
+
+      def request_locketag(header)
+        etag = request.env["HTTP_#{header}"]
+        return if etag.nil? || etag.empty?
+        etag.scan /\[(.+?)\]/
         return $1
       end
 
@@ -485,8 +511,11 @@ module RackWebDAV
         locktype = request_match("/d:lockinfo/d:locktype/d:*").first
         locktype = locktype.name if locktype
         owner = request_match("/d:lockinfo/d:owner/d:href").first
+        owner ||= request_match("/d:lockinfo/d:owner").first
         owner = owner.text if owner
         locktoken = "opaquelocktoken:" + sprintf('%x-%x-%s', Time.now.to_i, Time.now.sec, resource.etag)
+
+        raise Locked if resource.other_owner_locked?(locktoken, owner)
 
         # Quick & Dirty - FIXME: Lock should become a new Class
         # and this dirty parameter passing refactored.

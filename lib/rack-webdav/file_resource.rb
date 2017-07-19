@@ -185,13 +185,14 @@ module RackWebDAV
     @@locks = {}
 
     def lock(token, timeout, scope = nil, type = nil, owner = nil)
-      if scope && type && owner
+      if scope && type
         # Create lock
         @@locks[token] = {
           :timeout => timeout,
           :scope   => scope,
           :type    => type,
-          :owner   => owner
+          :owner   => owner,
+          :path    => self.path
         }
         return true
       else
@@ -206,6 +207,38 @@ module RackWebDAV
       !!@@locks.delete(token)
     end
 
+    def locked?(token, etag = nil)
+      if token.nil?
+        # check parent directory match
+        already_locks = @@locks.select { |lock_token, lock|
+          found = false
+          Pathname.new(self.path).ascend { |v|
+            found = lock[:path].gsub(/\/$/, '') == v.to_s
+            break if found
+          }
+          lock if found
+        }
+        return !already_locks.empty?
+      else
+        lock_paths = @@locks.select { |lock_token, lock| lock[:path] == self.path }
+        self.exist? && @@locks.key?(token) == false && !lock_paths.empty?
+      end
+    end
+
+    def other_owner_locked?(token, owner)
+      return false if token.nil?
+      return false if @@locks.key?(token) && owner.nil?
+      other_owner = @@locks.select { |lock_token, lock|
+        lock[:path] == self.path
+      }.select { |lock_token, lock|
+        !lock[:owner].nil? && lock[:owner] != owner
+      }
+      !other_owner.empty?
+    end
+
+    def locks
+      @@locks
+    end
 
     private
 
